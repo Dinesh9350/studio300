@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ArrowRight, Play, ChevronDown } from 'lucide-react'
 
@@ -16,77 +16,97 @@ const floatingItems = [
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
-  // Use refs for actual position tracking
-  const mouseX = useRef(0)
-  const mouseY = useRef(0)
+  // Only track mouse on desktop
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
   
-  // Motion values with initial 0
-  const motionX = useMotionValue(0)
-  const motionY = useMotionValue(0)
+  // Lighter spring for mobile, smoother for desktop
+  const springConfig = useMemo(() => ({ 
+    stiffness: isMobile ? 40 : 25, 
+    damping: isMobile ? 20 : 15, 
+    mass: 0.8 
+  }), [isMobile])
   
-  // Smoother spring config
-  const springConfig = { stiffness: 25, damping: 15, mass: 0.8 }
-  const smoothX = useSpring(motionX, springConfig)
-  const smoothY = useSpring(motionY, springConfig)
+  const smoothX = useSpring(mouseX, springConfig)
+  const smoothY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
     setIsLoaded(true)
+    
+    // Check mobile once on mount
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024 || 'ontouchstart' in window)
+    }
+    checkMobile()
+    
+    // Debounced resize handler
+    let timeout: NodeJS.Timeout
+    const handleResize = () => {
+      clearTimeout(timeout)
+      timeout = setTimeout(checkMobile, 200)
+    }
+    
+    window.addEventListener('resize', handleResize, { passive: true })
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(timeout)
+    }
   }, [])
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isMobile) return // Skip on mobile
+    
     const { clientX, clientY } = e
     const { innerWidth, innerHeight } = window
     
-    // Normalize to -1 to 1 range
     const newX = (clientX - innerWidth / 2) / (innerWidth / 2)
     const newY = (clientY - innerHeight / 2) / (innerHeight / 2)
     
-    mouseX.current = newX
-    mouseY.current = newY
-    
-    motionX.set(newX)
-    motionY.set(newY)
+    mouseX.set(newX)
+    mouseY.set(newY)
   }
 
   return (
     <section 
       ref={containerRef} 
       id="home" 
-      className="relative min-h-screen bg-slate-950 overflow-hidden"
+      className="relative min-h-screen bg-slate-950 overflow-x-clip" // Changed to overflow-x-clip
       onMouseMove={handleMouseMove}
     >
-      {/* Animated Background */}
-      <div className="absolute inset-0">
+      {/* Optimized Background - Reduced blur intensity for mobile */}
+      <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" />
         
+        {/* Smaller, less intense orbs for mobile */}
         <motion.div 
           animate={{ 
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+            scale: [1, 1.1, 1],
+            x: [0, 30, 0],
+            y: [0, -20, 0],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-[900px] h-[900px] bg-uv-blue/15 rounded-full blur-[150px]"
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] md:w-[900px] md:h-[900px] bg-uv-blue/10 md:bg-uv-blue/15 rounded-full blur-[80px] md:blur-[150px]"
         />
         <motion.div 
           animate={{ 
-            scale: [1, 1.3, 1],
-            x: [0, -60, 0],
-            y: [0, 40, 0],
+            scale: [1, 1.15, 1],
+            x: [0, -30, 0],
+            y: [0, 20, 0],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-          className="absolute bottom-1/3 right-1/4 w-[700px] h-[700px] bg-uv-purple/10 rounded-full blur-[120px]"
+          className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] md:w-[700px] md:h-[700px] bg-uv-purple/5 md:bg-uv-purple/10 rounded-full blur-[60px] md:blur-[120px]"
         />
       </div>
 
-      {/* Subtle grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:120px_120px] pointer-events-none" />
+      {/* Subtle grid - hidden on mobile for performance */}
+      <div className="hidden md:block absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:120px_120px] pointer-events-none" />
 
       {/* Main Content */}
-      <div className="relative min-h-screen flex flex-col section-padding z-10 pt-24 pb-8">
+      <div className="relative min-h-screen flex flex-col section-padding z-10 pt-24 pb-8 px-4 sm:px-6 lg:px-8">
         
-        {/* Floating Products - Fixed positioning */}
+        {/* Floating Products - Desktop only, with bounds checking */}
         <div className="absolute inset-0 hidden lg:block pointer-events-none overflow-hidden">
           {floatingItems.map((item, index) => (
             <FloatingProduct 
@@ -123,7 +143,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 40 }}
               animate={isLoaded ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1] tracking-tight mb-2"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1] tracking-tight mb-2"
             >
               Print On
             </motion.h1>
@@ -132,7 +152,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 40 }}
               animate={isLoaded ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1] tracking-tight"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-[1] tracking-tight"
             >
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-uv-blue via-uv-purple to-uv-pink">
                 Anything
@@ -145,7 +165,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.9 }}
-            className="text-lg md:text-xl text-white/50 mb-8 max-w-xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-white/50 mb-8 max-w-xl mx-auto leading-relaxed px-4"
           >
             Professional UV printing services for banners, posters, promotional products, 
             and custom merchandise.
@@ -156,45 +176,39 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 w-full sm:w-auto px-4 sm:px-0"
           >
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -10px rgba(0, 102, 255, 0.4)" }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="group px-8 py-4 bg-gradient-to-r from-uv-blue to-uv-purple text-white rounded-full font-semibold text-base flex items-center gap-2 relative overflow-hidden"
+              className="group px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-uv-blue to-uv-purple text-white rounded-full font-semibold text-sm sm:text-base flex items-center gap-2 relative overflow-hidden w-full sm:w-auto justify-center"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Explore Products
-                <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <ArrowRight size={18} />
-                </motion.span>
+                <ArrowRight size={18} />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-uv-purple to-uv-pink opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </motion.button>
             
             <motion.button
-              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.08)" }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-8 py-4 glass-effect text-white rounded-full font-semibold text-base flex items-center gap-2 border border-white/10 hover:border-white/20 transition-all"
+              className="px-6 sm:px-8 py-3 sm:py-4 glass-effect text-white rounded-full font-semibold text-sm sm:text-base flex items-center gap-2 border border-white/10 hover:border-white/20 transition-all w-full sm:w-auto justify-center"
             >
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
                 <Play size={16} className="fill-current ml-0.5" />
               </div>
               Watch Demo
             </motion.button>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats - Simpler on mobile */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 1.4, duration: 0.8 }}
-            className="w-full"
+            className="w-full px-4"
           >
-            <div className="flex justify-center gap-12 md:gap-20">
+            <div className="flex flex-wrap justify-center gap-8 sm:gap-12 md:gap-20">
               {[
                 { value: '300', label: 'DPI Resolution' },
                 { value: '50+', label: 'Materials' },
@@ -205,10 +219,9 @@ export default function Hero() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isLoaded ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 1.6 + index * 0.15, duration: 0.6 }}
-                  whileHover={{ y: -5 }}
-                  className="text-center group cursor-default"
+                  className="text-center"
                 >
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-1 group-hover:text-uv-blue transition-colors duration-300">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">
                     {stat.value}
                   </div>
                   <div className="text-xs text-white/50 uppercase tracking-widest">{stat.label}</div>
@@ -239,7 +252,7 @@ export default function Hero() {
   )
 }
 
-// Floating Product Component - Fixed parallax
+// Optimized Floating Product Component
 function FloatingProduct({ item, index, mouseX, mouseY, isLoaded }: { 
   item: typeof floatingItems[0]
   index: number
@@ -249,11 +262,10 @@ function FloatingProduct({ item, index, mouseX, mouseY, isLoaded }: {
 }) {
   const intensity = 15 + (index * 3)
   
-  // Calculate parallax offset - this adds to the base position
-  const parallaxX = useTransform(mouseX, [-1, 1], [-intensity, intensity])
-  const parallaxY = useTransform(mouseY, [-1, 1], [-intensity, intensity])
+  // Reduced parallax intensity
+  const parallaxX = useTransform(mouseX, [-1, 1], [-intensity * 0.6, intensity * 0.6])
+  const parallaxY = useTransform(mouseY, [-1, 1], [-intensity * 0.6, intensity * 0.6])
   
-  // Combine base position with parallax
   const finalX = useTransform(parallaxX, (v) => item.x + v)
   const finalY = useTransform(parallaxY, (v) => item.y + v)
   
@@ -262,7 +274,7 @@ function FloatingProduct({ item, index, mouseX, mouseY, isLoaded }: {
 
   return (
     <motion.div
-      className="absolute"
+      className="absolute will-change-transform" // Added GPU hint
       initial={{ 
         x: item.x, 
         y: item.y, 
@@ -293,8 +305,8 @@ function FloatingProduct({ item, index, mouseX, mouseY, isLoaded }: {
     >
       <motion.div
         animate={{ 
-          y: [0, -12, 0],
-          rotate: [0, 2, 0, -2, 0],
+          y: [0, -8, 0], // Reduced float distance
+          rotate: [0, 1, 0, -1, 0], // Reduced rotation
         }}
         transition={{ 
           duration: floatDuration,
@@ -302,13 +314,14 @@ function FloatingProduct({ item, index, mouseX, mouseY, isLoaded }: {
           ease: "easeInOut",
           delay: floatDelay
         }}
-        whileHover={{ scale: 1.08, rotate: 0, zIndex: 100 }}
+        whileHover={{ scale: 1.05, rotate: 0, zIndex: 100 }}
         className="pointer-events-auto"
       >
-        <div className="w-[180px] h-[130px] rounded-xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer backdrop-blur-md bg-slate-900/40 hover:border-uv-blue/50 transition-all duration-500">
+        <div className="w-[140px] h-[100px] md:w-[180px] md:h-[130px] rounded-xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer backdrop-blur-md bg-slate-900/40 hover:border-uv-blue/50 transition-all duration-500">
           <img 
             src={item.image} 
             alt={item.name}
+            loading="lazy" // Added lazy loading
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
