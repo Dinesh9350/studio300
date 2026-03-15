@@ -5,15 +5,37 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'R.V. Graphics | Helmet Decals & Labeling Solutions',
-  description: 'Leading manufacturer of Helmet Decals, Water Transfer Decals, Vinyl Stickers, Self Adhesive Labels & Packaging Solutions. Serving automotive, medical & consumer industries since 2008.',
-  keywords: ['helmet decals', 'vinyl labels', 'water transfer decals', 'stickers', 'packaging', 'printing', 'India'],
-  authors: [{ name: 'R.V. Graphics' }],
+  metadataBase: new URL('https://rv-graphics.com'),
+
+  title: 'RV Graphics | Helmet Decals, Vinyl Stickers & Label Manufacturer',
+  description:
+    'RV Graphics is a leading manufacturer of helmet decals, water transfer decals, vinyl stickers, self adhesive labels and packaging solutions in India since 2008.',
+
+  keywords: [
+    'rv graphics',
+    'helmet',
+    'helmet decals',
+    'vinyl stickers',
+    'water transfer decals',
+    'self adhesive labels',
+    'packaging printing India',
+  ],
+
+  authors: [{ name: 'RV Graphics' }],
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   openGraph: {
-    title: 'R.V. Graphics | Premium Labeling Solutions',
-    description: 'Professional manufacturer of helmet decals, vinyl stickers, and packaging solutions since 2008.',
-    type: 'website',
+    title: 'RV Graphics | Premium Labeling & Sticker Solutions',
+    description:
+      'Professional manufacturer of helmet decals, vinyl stickers, water transfer decals and packaging solutions.',
+    url: 'https://rv-graphics.com',
+    siteName: 'RV Graphics',
     locale: 'en_IN',
+    type: 'website',
   },
 }
 
@@ -24,7 +46,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased bg-slate-950 text-white`}>{children}</body>
+      <body className={`${inter.variable} font-sans antialiased bg-slate-950 text-white`}>
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "RV Graphics",
+              url: "https://rv-graphics.com",
+              logo: "https://rv-graphics.com/images/RV_Graphics.png",
+              description:
+                "Manufacturer of helmet decals, vinyl stickers, water transfer decals and labeling solutions.",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Bahadurgarh",
+                addressRegion: "Haryana",
+                postalCode: "124507",
+                addressCountry: "IN"
+              }
+            })
+          }}
+        />
+      </body>
     </html>
   )
 }

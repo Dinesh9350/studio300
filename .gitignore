@@ -1,1 +1,10 @@
+# next.js
+.next
+out
+dist
+
+# dependencies
 node_modules
+
+# logs
+npm-debug.log

@@ -6,7 +6,7 @@ import { ArrowRight, Play, ChevronDown } from 'lucide-react'
 
 // Using images from the PDF - Helmet Decals, Labels, Boxes, Bags
 const floatingItems = [
-  { id: 1, name: 'Helmet Decals', image: 'https://kimi-web-img.moonshot.cn/img/printodelivery.com/77cae58c89fcb886a52a9c9eca3800d51a2205d9.jpg', x: -280, y: -140, rotate: -12, scale: 0.85 },
+  { id: 1, name: 'Helmet', image: 'https://kimi-web-img.moonshot.cn/img/printodelivery.com/77cae58c89fcb886a52a9c9eca3800d51a2205d9.jpg', x: -280, y: -140, rotate: -12, scale: 0.85 },
   { id: 2, name: 'Vinyl Labels', image: 'https://kimi-web-img.moonshot.cn/img/www.textek.cn/bf97932dd0339a1d452d6e8dc0e078c6868cc2ad.jpg', x: 300, y: -120, rotate: 15, scale: 0.8 },
   { id: 3, name: 'Packaging Boxes', image: 'https://kimi-web-img.moonshot.cn/img/3qprint-uploads.s3.ap-southeast-1.amazonaws.com/52ee7ec4f908c9e7d84b9adc65f3241a84a3e33c.webp', x: -260, y: 130, rotate: 6, scale: 0.75 },
   { id: 4, name: 'Custom Bags', image: 'https://kimi-web-img.moonshot.cn/img/lasercoprint.com/6345a17bd9ce5c0d7c34ff5e32a7c0a3aba2a49a.jpg', x: 280, y: 110, rotate: -8, scale: 0.7 },
@@ -112,7 +112,7 @@ export default function Hero() {
               transition={{ duration: 2, repeat: Infinity }}
               className="w-2 h-2 rounded-full bg-green-400"
             />
-            <span className="text-white/70 text-sm font-medium tracking-wide">Helmet Decals & Labeling Solutions</span>
+            <span className="text-white/70 text-sm font-medium tracking-wide">Helmet & Labeling Solutions</span>
           </motion.div>
 
           <div className="mb-6 relative z-20">
@@ -149,7 +149,7 @@ export default function Hero() {
           >
             <div className="absolute inset-0 -inset-x-6 -inset-y-3 bg-slate-950/60 rounded-2xl blur-lg -z-10" />
             <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-xl mx-auto leading-relaxed px-4 relative">
-              Leading manufacturer of Helmet Decals, Water Transfer Decals, Vinyl Stickers, 
+              Leading manufacturer of Helmet, Water Transfer Decals, Vinyl Stickers, 
               Self Adhesive Labels & Packaging Solutions. Serving automotive, medical & consumer industries since 2008.
             </p>
           </motion.div>
