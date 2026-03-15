@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   metadataBase: new URL('https://rv-graphics.com'),
 
+  
   title: 'RV Graphics | Helmet Decals, Vinyl Stickers & Label Manufacturer',
   description:
     'RV Graphics is a leading manufacturer of helmet decals, water transfer decals, vinyl stickers, self adhesive labels and packaging solutions in India since 2008.',
@@ -46,6 +47,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/inter.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${inter.variable} font-sans antialiased bg-slate-950 text-white`}>
         {children}
         <script
