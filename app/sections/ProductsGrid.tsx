@@ -8,7 +8,7 @@ const products = [
     id: 1,
     name: 'Helmet Decals',
     description: 'Premium water transfer and polycarbonate decals for motorcycle helmets. Scratch-resistant and UV protected.',
-    image: 'https://kimi-web-img.moonshot.cn/img/printodelivery.com/77cae58c89fcb886a52a9c9eca3800d51a2205d9.jpg',
+    image: 'https://alwaysriding.in/cdn/shop/files/MtThunder3ProBlazeGlossWhite1.webp?v=1719582021',
     tags: ['Water Transfer', 'Polycarbonate', 'UV Protected'],
     price: 'Custom Quote'
   },
