@@ -9,7 +9,7 @@ const portfolioItems = [
     id: 1,
     category: 'helmets',
     title: 'Custom Helmet Decals',
-    image: 'https://kimi-web-img.moonshot.cn/img/printodelivery.com/77cae58c89fcb886a52a9c9eca3800d51a2205d9.jpg'
+    image: 'https://alwaysriding.in/cdn/shop/files/MtThunder3ProBlazeGlossWhite1.webp?v=1719582021'
   },
   {
     id: 2,
